@@ -2,6 +2,18 @@
 use lithium\core\Libraries;
 use lithium\util\Validator;
 
+$doctrine_lib_root = \lithium\core\Libraries::get('li3_doctrine2', 'path');
+$doctrine_base_dir = $doctrine_lib_root . '/_source/doctrine2';
+
+if (!$doctrine_lib_root) {
+    throw new Exception('li3_doctrine2 required for media library');
+}
+
+require $doctrine_base_dir . '/lib/Doctrine/ORM/Tools/Setup.php';
+\Doctrine\ORM\Tools\Setup::registerAutoloadGit($doctrine_base_dir);
+
+\Doctrine\DBAL\Types\Type::addType('json', 'li3_media\models\types\JsonType');
+
 $config += array(
 	'validators' => false
 );
