@@ -1,6 +1,6 @@
 <?php
 define('PLUGIN_PATH', dirname(dirname(__FILE__)));
-define('ROOT', dirname(dirname(PLUGIN_PATH)));
+define('ROOT', dirname(dirname(dirname(PLUGIN_PATH))));
 
 $candidates = array(
     ROOT . '/',
@@ -35,6 +35,18 @@ require_once($appPath . 'config/bootstrap/libraries.php');
 require_once($appPath . 'config/bootstrap/connections.php');
 
 $connection = \lithium\data\Connections::get('default');
+$em = $connection->getEntityManager();
+$config = $em->getConfiguration();
+
+/**
+ * Include models from plugins
+ */
+$libraryModelPaths = glob($appPath . "libraries/*/models");
+if (is_array($libraryModelPaths)) {
+	$existingDrivers = $config->getMetadataDriverImpl();
+	$driverImpl = $config->newDefaultAnnotationDriver($existingDrivers->getPaths() + $libraryModelPaths);
+	$config->setMetadataDriverImpl($driverImpl);
+}
 
 /**
  * Continue with doctrine cli config
@@ -43,7 +55,7 @@ $connection = \lithium\data\Connections::get('default');
 $loader = new \Doctrine\Common\ClassLoader('Doctrine\DBAL\Migrations', PLUGIN_PATH . '/_source/migrations/lib');
 $loader->register();
 
-Doctrine\ORM\Tools\Setup::registerAutoloadGit(PLUGIN_PATH . '/_source/doctrine2');
+//Doctrine\ORM\Tools\Setup::registerAutoloadGit(PLUGIN_PATH . '/_source/doctrine2');
 
 $em = $connection->getEntityManager();
 
